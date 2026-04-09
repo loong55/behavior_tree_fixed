@@ -1,0 +1,639 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<root BTCPP_format="4"
+      main_tree_to_execute="BehaviorTree">
+  <BehaviorTree ID="BehaviorTree">
+    <ReactiveSequence>
+      <SubTree ID="获取比赛相关信息"
+               _autoremap="true"/>
+      <WhileDoElse>
+        <ISGameStart message="{game_progress_status}"/>
+        <WhileDoElse>
+          <IfRestoresHpOrPill both_camp_hp="{both_camp_hp}"
+                              sentry_blood_threshold="135"
+                              sentry_full_blood="400"
+                              game_time="{game_time}"
+                              projectile_number="{permitted_pill_number}"/>
+          <SubTree ID="回血或者补充弹丸"
+                   _autoremap="true"/>
+          <WhileDoElse>
+            <IsTimeBack game_time="{game_time}"
+                        set_minutes="5"/>
+            <SubTree ID="比赛时间&gt;=设定时间，返回基地"
+                     _autoremap="true"/>
+            <SubTree ID="比赛时间&lt;设定时间，正常策略"
+                     _autoremap="true"/>
+          </WhileDoElse>
+        </WhileDoElse>
+        <Sleep msec="2000"/>
+      </WhileDoElse>
+    </ReactiveSequence>
+  </BehaviorTree>
+
+  <BehaviorTree ID="回血或者补充弹丸">
+    <Sequence>
+      <SubTree ID="获取机器人当前所在区域"
+               _autoremap="true"/>
+      <Switch3 case_1="1"
+               case_2="2"
+               case_3="3"
+               variable="{current_area}">
+        <Sequence name="区域1（己方基地区域）路线">
+          <SubTree ID="路线(己方区域-&gt;补给区门口)"
+                   _autoremap="true"/>
+          <Repeat num_cycles="10000">
+            <RetryUntilSuccessful num_attempts="10000">
+              <SubTree ID="路线(补给区门口-&gt;补给区域)"
+                       _autoremap="true"/>
+            </RetryUntilSuccessful>
+          </Repeat>
+        </Sequence>
+        <Sequence name="区域2（中间高地）路线">
+          <SubTree ID="路线(中央区域-&gt;补给区门口)"
+                   _autoremap="true"/>
+          <Repeat num_cycles="10000">
+            <RetryUntilSuccessful num_attempts="10000">
+              <SubTree ID="路线(补给区门口-&gt;补给区域)"
+                       _autoremap="true"/>
+            </RetryUntilSuccessful>
+          </Repeat>
+        </Sequence>
+        <Sequence name="区域3（目前不打算去地方区域，默认该区域无用）路线">
+          <SubTree ID="路线(default-&gt;补给区门口)"
+                   _autoremap="true"/>
+          <Repeat num_cycles="10000">
+            <RetryUntilSuccessful num_attempts="10000">
+              <SubTree ID="路线(补给区门口-&gt;补给区域)"
+                       _autoremap="true"/>
+            </RetryUntilSuccessful>
+          </Repeat>
+        </Sequence>
+        <Sequence name="区域3（目前不打算去地方区域，默认该区域无用）路线">
+          <SubTree ID="路线(default-&gt;补给区门口)"
+                   _autoremap="true"/>
+          <Repeat num_cycles="10000">
+            <RetryUntilSuccessful num_attempts="10000">
+              <SubTree ID="路线(补给区门口-&gt;补给区域)"
+                       _autoremap="true"/>
+            </RetryUntilSuccessful>
+          </Repeat>
+        </Sequence>
+      </Switch3>
+    </Sequence>
+  </BehaviorTree>
+
+  <BehaviorTree ID="巡逻(中央高地)">
+    <Sequence>
+      <PubFloat name="开启2d雷达融合"
+                topic_name="if_pub_ms200_scan"
+                float_data="1.0"/>
+      <PubFloat name="小陀螺转速控制"
+                topic_name="rotate_speed"
+                float_data="1.0"/>
+      <SendGoal name="中央高地巡逻点1"
+                goal_pose="7.06;-6.96;0; 0;0;0;1"
+                action_name="navigate_to_pose"/>
+      <Sleep msec="3000"/>
+      <SendGoal name="中央高地巡逻点2"
+                goal_pose="11.88;-6.37;0; 0;0;0;1"
+                action_name="navigate_to_pose"/>
+      <Sleep msec="3000"/>
+      <SendGoal name="中央高地巡逻点3"
+                goal_pose="13.99;-3.14;0; 0;0;0;1"
+                action_name="navigate_to_pose"/>
+      <Sleep msec="3000"/>
+      <SendGoal name="中央高地巡逻点4"
+                goal_pose="14.29;0.39;0; 0;0;0;1"
+                action_name="navigate_to_pose"/>
+      <Sleep msec="3000"/>
+      <SendGoal name="中央高地巡逻点5"
+                goal_pose="9.76;2.86;0; 0;0;0;1"
+                action_name="navigate_to_pose"/>
+      <Sleep msec="3000"/>
+      <SendGoal name="中央高地巡逻点6"
+                goal_pose="7.82;0.21;0; 0;0;0;1"
+                action_name="navigate_to_pose"/>
+      <Sleep msec="3000"/>
+      <SendGoal name="中央高地巡逻点7"
+                goal_pose="9.58;-3.61;0; 0;0;0;1"
+                action_name="navigate_to_pose"/>
+      <Sleep msec="3000"/>
+    </Sequence>
+  </BehaviorTree>
+
+  <BehaviorTree ID="巡逻(己方基地)">
+    <Sequence>
+      <PubFloat name="小陀螺转速控制"
+                topic_name="rotate_speed"
+                float_data="1.0"/>
+      <PubFloat name="开启2d雷达融合"
+                topic_name="if_pub_ms200_scan"
+                float_data="1.0"/>
+      <SendGoal name="基地巡逻点1"
+                goal_pose="1.77;-4.14;0; 0;0;0;1"
+                action_name="navigate_to_pose"/>
+      <Sleep msec="3000"/>
+      <SendGoal name="巡逻点2"
+                goal_pose="4.94;-3.96;0; 0;0;0;1"
+                action_name="navigate_to_pose"/>
+      <Sleep msec="3000"/>
+      <SendGoal name="巡逻点3"
+                goal_pose="5.24;0.27;0; 0;0;0;1"
+                action_name="navigate_to_pose"/>
+      <Sleep msec="3000"/>
+      <SendGoal name="巡逻点4"
+                goal_pose="1.30;0.27;0; 0;0;0;1"
+                action_name="navigate_to_pose"/>
+      <Sleep msec="3000"/>
+    </Sequence>
+  </BehaviorTree>
+
+  <BehaviorTree ID="巡逻(敌方前哨战附近)">
+    <Sequence>
+      <PubFloat name="开启2d雷达融合"
+                topic_name="if_pub_ms200_scan"
+                float_data="1.0"/>
+      <PubFloat name="小陀螺转速控制"
+                topic_name="rotate_speed"
+                float_data="1.0"/>
+      <SendGoal name="中央高地巡逻点1"
+                goal_pose="11.88;2.44;0; 0;0;0;1"
+                action_name="navigate_to_pose"/>
+      <Sleep msec="5000"/>
+      <SendGoal name="中央高地巡逻点2"
+                goal_pose="10.35;1.97;0; 0;0;0;1"
+                action_name="navigate_to_pose"/>
+      <Sleep msec="5000"/>
+    </Sequence>
+  </BehaviorTree>
+
+  <BehaviorTree ID="比赛时间&lt;设定时间，正常策略">
+    <WhileDoElse>
+      <IsDetectEnemy message="{detect_enemy_status}"/>
+      <SubTree ID="识别到敌人后停下来攻击"
+               _autoremap="true"/>
+      <WhileDoElse>
+        <IfEnemyOutpostDie both_camp_hp="{both_camp_hp}"/>
+        <Sequence>
+          <SubTree ID="获取机器人当前所在区域"
+                   _autoremap="true"/>
+          <Switch3 case_1="1"
+                   case_2="2"
+                   case_3="3"
+                   variable="{current_area}">
+            <Sequence name="区域1（己方基地区域）路线">
+              <SubTree ID="路线(己方区域-&gt;中央区域)"
+                       _autoremap="true"/>
+              <Repeat num_cycles="10000">
+                <RetryUntilSuccessful num_attempts="10000">
+                  <SubTree ID="巡逻(中央高地)"
+                           _autoremap="true"/>
+                </RetryUntilSuccessful>
+              </Repeat>
+            </Sequence>
+            <Sequence name="区域2（中央高地区域）路线">
+              <SubTree ID="路线(中央区域-&gt;中央区域)"
+                       _autoremap="true"/>
+              <Repeat num_cycles="10000">
+                <RetryUntilSuccessful num_attempts="10000">
+                  <SubTree ID="巡逻(中央高地)"
+                           _autoremap="true"/>
+                </RetryUntilSuccessful>
+              </Repeat>
+            </Sequence>
+            <Sequence name="区域3（敌方基地区域，默认哨兵不可能在敌方基地）路线">
+              <SubTree ID="路线(defalut-&gt;中央区域)"
+                       _autoremap="true"/>
+              <Repeat num_cycles="10000">
+                <RetryUntilSuccessful num_attempts="10000">
+                  <Sequence>
+                    <SubTree ID="巡逻(中央高地)"
+                             _autoremap="true"/>
+                  </Sequence>
+                </RetryUntilSuccessful>
+              </Repeat>
+            </Sequence>
+            <Sequence name="区域default（default）路线">
+              <SubTree ID="路线(defalut-&gt;中央区域)"
+                       _autoremap="true"/>
+              <Repeat num_cycles="10000">
+                <RetryUntilSuccessful num_attempts="10000">
+                  <Sequence>
+                    <SubTree ID="巡逻(中央高地)"
+                             _autoremap="true"/>
+                  </Sequence>
+                </RetryUntilSuccessful>
+              </Repeat>
+            </Sequence>
+          </Switch3>
+        </Sequence>
+        <Sequence>
+          <SubTree ID="获取机器人当前所在区域"
+                   _autoremap="true"/>
+          <Switch3 case_1="1"
+                   case_2="2"
+                   case_3="3"
+                   variable="{current_area}">
+            <Sequence name="区域1（己方基地区域）路线">
+              <SubTree ID="路线(己方区域-&gt;中央区域)"
+                       _autoremap="true"/>
+              <Repeat num_cycles="10000">
+                <RetryUntilSuccessful num_attempts="10000">
+                  <SubTree ID="巡逻(敌方前哨战附近)"
+                           _autoremap="true"/>
+                </RetryUntilSuccessful>
+              </Repeat>
+            </Sequence>
+            <Sequence name="区域2（中央高地区域）路线">
+              <SubTree ID="路线(中央区域-&gt;中央区域)"
+                       _autoremap="true"/>
+              <Repeat num_cycles="10000">
+                <RetryUntilSuccessful num_attempts="10000">
+                  <SubTree ID="巡逻(敌方前哨战附近)"
+                           _autoremap="true"/>
+                </RetryUntilSuccessful>
+              </Repeat>
+            </Sequence>
+            <Sequence name="区域3（敌方基地区域，默认哨兵不可能在敌方基地）路线">
+              <SubTree ID="路线(defalut-&gt;中央区域)"
+                       _autoremap="true"/>
+              <Repeat num_cycles="10000">
+                <RetryUntilSuccessful num_attempts="10000">
+                  <SubTree ID="巡逻(敌方前哨战附近)"
+                           _autoremap="true"/>
+                </RetryUntilSuccessful>
+              </Repeat>
+            </Sequence>
+            <Sequence name="区域default（default）路线">
+              <SubTree ID="路线(defalut-&gt;中央区域)"
+                       _autoremap="true"/>
+              <Repeat num_cycles="10000">
+                <RetryUntilSuccessful num_attempts="10000">
+                  <SubTree ID="巡逻(敌方前哨战附近)"
+                           _autoremap="true"/>
+                </RetryUntilSuccessful>
+              </Repeat>
+            </Sequence>
+          </Switch3>
+        </Sequence>
+      </WhileDoElse>
+    </WhileDoElse>
+  </BehaviorTree>
+
+  <BehaviorTree ID="比赛时间&gt;=设定时间，返回基地">
+    <WhileDoElse>
+      <IsDetectEnemy message="{detect_enemy_status}"/>
+      <SubTree ID="识别到敌人后停下来攻击"
+               _autoremap="true"/>
+      <Sequence>
+        <SubTree ID="获取机器人当前所在区域"
+                 _autoremap="true"/>
+        <Switch3 case_1="1"
+                 case_2="2"
+                 case_3="3"
+                 variable="{current_area}">
+          <Sequence name="区域1（己方基地区域）路线">
+            <Repeat num_cycles="10000">
+              <RetryUntilSuccessful num_attempts="10000">
+                <SubTree ID="巡逻(己方基地)"
+                         _autoremap="true"/>
+              </RetryUntilSuccessful>
+            </Repeat>
+          </Sequence>
+          <Sequence name="区域2（中间高地）路线">
+            <SubTree ID="路线(中央区域-&gt;己方区域)"
+                     _autoremap="true"/>
+            <Repeat num_cycles="10000">
+              <Repeat num_cycles="10000">
+                <SubTree ID="巡逻(己方基地)"
+                         _autoremap="true"/>
+              </Repeat>
+            </Repeat>
+          </Sequence>
+          <Sequence name="区域3（目前不打算去地方区域，默认该区域无用）路线">
+            <SubTree ID="路线(default-&gt;己方区域)"
+                     _autoremap="true"/>
+            <Repeat num_cycles="10000">
+              <Repeat num_cycles="10000">
+                <SubTree ID="巡逻(己方基地)"
+                         _autoremap="true"/>
+              </Repeat>
+            </Repeat>
+          </Sequence>
+          <Sequence name="区域3（目前不打算去地方区域，默认该区域无用）路线">
+            <SubTree ID="路线(default-&gt;己方区域)"
+                     _autoremap="true"/>
+            <Repeat num_cycles="10000">
+              <Repeat num_cycles="10000">
+                <SubTree ID="巡逻(己方基地)"
+                         _autoremap="true"/>
+              </Repeat>
+            </Repeat>
+          </Sequence>
+        </Switch3>
+      </Sequence>
+    </WhileDoElse>
+  </BehaviorTree>
+
+  <BehaviorTree ID="获取机器人当前所在区域">
+    <RetryUntilSuccessful num_attempts="100000">
+      <GetCurrentArea name="区域{1:己方基地区域} {2:中央高地区域} {3:敌人基地区域}"
+                      area_1="&quot;{1:0.30,5.91},{2:10.88,5.85},{3:6.70,0.27},{4:6.88,-3.78},{5:6.65,-6.90},{6:0.65,-6.66},{7:0.71,-8.55},{8:-2.82,-5.61}&quot;"
+                      area_2="&quot;{1:10.88,5.85},{2:6.70,0.27},{3:6.88,-3.78},{4:6.65,-6.90},{5:0.65,-6.66},{6:0.71,-8.55},{7:10.94,-8.90},{8:14.76,-3.26},{9:14.82,2.15},{10:15.17,4.09},{11:16.87,6.09}&quot;"
+                      area_3="&quot;{1:19.46,0.74},{2:23.87,0.80},{3:21.16,-2.84}&quot;"
+                      current_area="{current_area}"/>
+    </RetryUntilSuccessful>
+  </BehaviorTree>
+
+  <BehaviorTree ID="获取比赛相关信息">
+    <Sequence>
+      <SubGameStatus topic_name="game_progress_status"
+                     game_status="{game_progress_status}"/>
+      <SubProjectileNumber topic_name="permitted_pill_number"
+                           projectile_number="{permitted_pill_number}"/>
+      <SubBothCampHp topic_name="both_camp_hp"
+                     both_camp_hp="{both_camp_hp}"/>
+      <SubDecisionStatus topic_name="game_decision_status"
+                         game_decision_status="{game_decision_status}"/>
+      <SubGameTime topic_name="game_time"
+                   game_time="{game_time}"/>
+      <SubIsDetectEnemy topic_name="gimbal_command"
+                        detect_enemy_status="{detect_enemy_status}"/>
+    </Sequence>
+  </BehaviorTree>
+
+  <BehaviorTree ID="识别到敌人后停下来攻击">
+    <Sequence>
+      <PubFloat name="小陀螺转速控制"
+                topic_name="rotate_speed"
+                float_data="1.0"/>
+      <PubFloat name="开启2d雷达融合"
+                topic_name="if_pub_ms200_scan"
+                float_data="1.0"/>
+      <RetryUntilSuccessful num_attempts="10000">
+        <GetCurrentLocation current_location="{current_location}"/>
+      </RetryUntilSuccessful>
+      <Repeat num_cycles="10000">
+        <RetryUntilSuccessful num_attempts="10000">
+          <Sequence>
+            <SendGoal goal_pose="{current_location}"
+                      action_name="navigate_to_pose"/>
+            <Sleep msec="1000"/>
+          </Sequence>
+        </RetryUntilSuccessful>
+      </Repeat>
+    </Sequence>
+  </BehaviorTree>
+
+  <BehaviorTree ID="路线(defalut-&gt;中央区域)">
+    <Sequence>
+      <PubFloat name="关闭2d雷达融合"
+                topic_name="if_pub_ms200_scan"
+                float_data="0.0"/>
+      <PubFloat name="小陀螺转速控制"
+                topic_name="rotate_speed"
+                float_data="1.0"/>
+    </Sequence>
+  </BehaviorTree>
+
+  <BehaviorTree ID="路线(default-&gt;己方区域)">
+    <Sequence>
+      <PubFloat name="关闭2d雷达融合"
+                topic_name="if_pub_ms200_scan"
+                float_data="0.0"/>
+      <PubFloat name="小陀螺转速控制"
+                topic_name="rotate_speed"
+                float_data="1.0"/>
+    </Sequence>
+  </BehaviorTree>
+
+  <BehaviorTree ID="路线(default-&gt;补给区门口)">
+    <Sequence>
+      <PubFloat name="关闭2d雷达融合"
+                topic_name="if_pub_ms200_scan"
+                float_data="0.0"/>
+      <PubFloat name="小陀螺转速控制"
+                topic_name="rotate_speed"
+                float_data="1.0"/>
+      <SendGoal name="家门口"
+                goal_pose="-0.94;-4.67;0; 0;0;0;1"
+                action_name="navigate_to_pose"/>
+      <PubFloat name="开启2d雷达融合"
+                topic_name="if_pub_ms200_scan"
+                float_data="1.0"/>
+      <PubFloat name="小陀螺转速控制"
+                topic_name="rotate_speed"
+                float_data="0.0"/>
+    </Sequence>
+  </BehaviorTree>
+
+  <BehaviorTree ID="路线(中央区域-&gt;中央区域)">
+    <Sequence>
+      <PubFloat name="小陀螺转速控制"
+                topic_name="rotate_speed"
+                float_data="1.0"/>
+      <PubFloat name="开启2d雷达融合"
+                topic_name="if_pub_ms200_scan"
+                float_data="1.0"/>
+    </Sequence>
+  </BehaviorTree>
+
+  <BehaviorTree ID="路线(中央区域-&gt;己方区域)">
+    <Sequence>
+      <PubFloat name="开启2d雷达融合"
+                topic_name="if_pub_ms200_scan"
+                float_data="1.0"/>
+      <PubFloat name="小陀螺转速控制"
+                topic_name="rotate_speed"
+                float_data="1.0"/>
+      <SendGoal name="回家下坡点1"
+                goal_pose="1.65;-8.13;0; 0;0;0;1"
+                action_name="navigate_to_pose"/>
+      <SendGoal name="回家下坡点2"
+                goal_pose="1.42;-6.43;0; 0;0;0;1"
+                action_name="navigate_to_pose"/>
+      <PubFloat name="关闭2d雷达融合"
+                topic_name="if_pub_ms200_scan"
+                float_data="0.0"/>
+      <Sleep msec="500"/>
+      <SendGoal name="回家下坡点3"
+                goal_pose="5.53;-6.19;0; 0;0;0;1"
+                action_name="navigate_to_pose"/>
+      <PubFloat name="开启2d雷达融合"
+                topic_name="if_pub_ms200_scan"
+                float_data="1.0"/>
+    </Sequence>
+  </BehaviorTree>
+
+  <BehaviorTree ID="路线(中央区域-&gt;补给区门口)">
+    <Sequence>
+      <PubFloat name="开启2d雷达融合"
+                topic_name="if_pub_ms200_scan"
+                float_data="1.0"/>
+      <PubFloat name="小陀螺转速控制"
+                topic_name="rotate_speed"
+                float_data="1.0"/>
+      <SendGoal name="回家下坡点1"
+                goal_pose="1.65;-8.13;0; 0;0;0;1"
+                action_name="navigate_to_pose"/>
+      <SendGoal name="回家下坡点2"
+                goal_pose="1.42;-6.43;0; 0;0;0;1"
+                action_name="navigate_to_pose"/>
+      <PubFloat name="关闭2d雷达融合"
+                topic_name="if_pub_ms200_scan"
+                float_data="0.0"/>
+      <Sleep msec="500"/>
+      <SendGoal name="回家下坡点3"
+                goal_pose="5.53;-6.19;0; 0;0;0;1"
+                action_name="navigate_to_pose"/>
+      <PubFloat name="开启2d雷达融合"
+                topic_name="if_pub_ms200_scan"
+                float_data="1.0"/>
+      <SendGoal name="家门口"
+                goal_pose="-0.94;-4.67;0; 0;0;0;1"
+                action_name="navigate_to_pose"/>
+      <PubFloat name="小陀螺转速控制"
+                topic_name="rotate_speed"
+                float_data="0.0"/>
+    </Sequence>
+  </BehaviorTree>
+
+  <BehaviorTree ID="路线(己方区域-&gt;中央区域)">
+    <Sequence>
+      <PubFloat name="小陀螺转速控制"
+                topic_name="rotate_speed"
+                float_data="1.0"/>
+      <PubFloat name="开启2d雷达融合"
+                topic_name="if_pub_ms200_scan"
+                float_data="1.0"/>
+      <SendGoal name="中央高地上坡点1"
+                goal_pose="4.88;-6.19;0; 0;0;0;1"
+                action_name="navigate_to_pose"/>
+      <SendGoal name="中央高地上坡点2"
+                goal_pose="1.42;-6.31;0; 0;0;0;1"
+                action_name="navigate_to_pose"/>
+      <SendGoal name="中央高地上坡点3"
+                goal_pose="1.53;-8.13;0; 0;0;0;1"
+                action_name="navigate_to_pose"/>
+    </Sequence>
+  </BehaviorTree>
+
+  <BehaviorTree ID="路线(己方区域-&gt;己方区域)">
+    <Sequence>
+      <PubFloat name="小陀螺转速控制"
+                topic_name="rotate_speed"
+                float_data="1.0"/>
+      <PubFloat name="开启2d雷达融合"
+                topic_name="if_pub_ms200_scan"
+                float_data="1.0"/>
+    </Sequence>
+  </BehaviorTree>
+
+  <BehaviorTree ID="路线(己方区域-&gt;补给区门口)">
+    <Sequence>
+      <PubFloat name="小陀螺转速控制"
+                topic_name="rotate_speed"
+                float_data="1.0"/>
+      <PubFloat name="开启2d雷达融合"
+                topic_name="if_pub_ms200_scan"
+                float_data="1.0"/>
+      <SendGoal name="补给区门口"
+                goal_pose="-0.94;-4.67;0; 0;0;0;1"
+                action_name="navigate_to_pose"/>
+      <PubFloat name="小陀螺转速控制"
+                topic_name="rotate_speed"
+                float_data="0.0"/>
+    </Sequence>
+  </BehaviorTree>
+
+  <BehaviorTree ID="路线(补给区门口-&gt;补给区域)">
+    <Sequence>
+      <SendGoal name="补给区"
+                goal_pose="-0.52;-8.08;0; 0;0;0;1"
+                action_name="navigate_to_pose"/>
+      <Sleep msec="1000"/>
+    </Sequence>
+  </BehaviorTree>
+
+  <!-- Description of Node Models (used by Groot) -->
+  <TreeNodesModel>
+    <Action ID="GetCurrentArea"
+            editable="true">
+      <input_port name="area_1"/>
+      <input_port name="area_2"/>
+      <input_port name="area_3"/>
+      <input_port name="current_area"/>
+    </Action>
+    <Action ID="GetCurrentLocation"
+            editable="true">
+      <output_port name="current_location"/>
+    </Action>
+    <Condition ID="ISGameStart"
+               editable="true">
+      <input_port name="message"/>
+    </Condition>
+    <Condition ID="IfEnemyOutpostDie"
+               editable="true">
+      <input_port name="both_camp_hp"/>
+    </Condition>
+    <Condition ID="IfRestoresHpOrPill"
+               editable="true">
+      <input_port name="both_camp_hp"/>
+      <input_port name="sentry_blood_threshold"/>
+      <input_port name="sentry_full_blood"/>
+      <input_port name="game_time"/>
+      <input_port name="projectile_number"/>
+    </Condition>
+    <Condition ID="IsDetectEnemy"
+               editable="true">
+      <input_port name="message"/>
+    </Condition>
+    <Condition ID="IsTimeBack"
+               editable="true">
+      <input_port name="game_time"/>
+      <input_port name="set_minutes"/>
+    </Condition>
+    <Action ID="PubFloat"
+            editable="true">
+      <input_port name="topic_name"/>
+      <input_port name="float_data"/>
+    </Action>
+    <Action ID="SendGoal"
+            editable="true">
+      <input_port name="goal_pose"
+                  default="0;0;0; 0;0;0;1"/>
+      <input_port name="action_name"
+                  default="navigate_to_pose"/>
+    </Action>
+    <Action ID="SubBothCampHp"
+            editable="true">
+      <input_port name="topic_name"/>
+      <output_port name="both_camp_hp"/>
+    </Action>
+    <Action ID="SubDecisionStatus"
+            editable="true">
+      <input_port name="topic_name"/>
+      <output_port name="game_decision_status"/>
+    </Action>
+    <Action ID="SubGameStatus"
+            editable="true">
+      <input_port name="topic_name"/>
+      <output_port name="game_status"/>
+    </Action>
+    <Action ID="SubGameTime"
+            editable="true">
+      <input_port name="topic_name"/>
+      <output_port name="game_time"/>
+    </Action>
+    <Action ID="SubIsDetectEnemy"
+            editable="true">
+      <input_port name="topic_name"/>
+      <output_port name="detect_enemy_status"/>
+    </Action>
+    <Action ID="SubProjectileNumber"
+            editable="true">
+      <input_port name="topic_name"/>
+      <output_port name="projectile_number"/>
+    </Action>
+  </TreeNodesModel>
+
+</root>
